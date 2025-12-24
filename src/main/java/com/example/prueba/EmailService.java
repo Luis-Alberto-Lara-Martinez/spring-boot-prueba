@@ -3,7 +3,11 @@ package com.example.prueba;
 import com.resend.Resend;
 import com.resend.services.emails.model.SendEmailRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class EmailService {
@@ -15,18 +19,10 @@ public class EmailService {
     }
 
     public void sendWelcomeEmail(String to, String name) throws Exception {
-
-        String html = """
-                <html>
-                    <body style="font-family: Arial, sans-serif;">
-                        <h2>¡Bienvenido, %s!</h2>
-                        <p>Gracias por unirte a nuestra plataforma.</p>
-                        <p>Estamos encantados de tenerte aquí.</p>
-                        <br>
-                        <p>— El equipo de Homely</p>
-                    </body>
-                </html>
-                """.formatted(name);
+        // Cargar y procesar la plantilla HTML desde resources/templates/bienvenida.html
+        ClassPathResource resource = new ClassPathResource("templates/bienvenida.html");
+        String html = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
+        html = html.replace("${name}", name);
 
         SendEmailRequest params = SendEmailRequest.builder()
                 .from("Resend <onboarding@resend.dev>")
