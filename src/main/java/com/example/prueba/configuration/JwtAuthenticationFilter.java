@@ -66,9 +66,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token JWT inválido o expirado");
-            return;
+            // No establecer autenticación si el token es inválido
+            // Spring Security manejará esto con el AuthenticationEntryPoint
         }
 
         filterChain.doFilter(request, response);

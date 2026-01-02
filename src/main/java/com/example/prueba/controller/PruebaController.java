@@ -1,14 +1,19 @@
 package com.example.prueba.controller;
 
+import com.example.prueba.services.CloudinaryService;
 import com.example.prueba.services.EmailService;
 import com.example.prueba.services.JwtService;
 import com.example.prueba.services.ResetTokenService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,11 +23,23 @@ public class PruebaController {
     private final EmailService emailService;
     private final ResetTokenService resetTokenService;
     private final JwtService jwtService;
+    private final CloudinaryService cloudinaryService;
 
-    public PruebaController(EmailService emailService, ResetTokenService resetTokenService, JwtService jwtService) {
+    public PruebaController(EmailService emailService, ResetTokenService resetTokenService, JwtService jwtService, CloudinaryService cloudinaryService) {
         this.emailService = emailService;
         this.resetTokenService = resetTokenService;
         this.jwtService = jwtService;
+        this.cloudinaryService = cloudinaryService;
+    }
+
+    @PostMapping("upload-file")
+    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
+        try {
+            String url = cloudinaryService.uploadFile(file);
+            return ResponseEntity.ok(url);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Endpoints en /pruebas/** - Acceso público (sin autenticación)
@@ -30,6 +47,7 @@ public class PruebaController {
     public String saludoPublico() {
         return "¡Hola! Este endpoint es público y no requiere autenticación.";
     }
+
     @GetMapping("/public/generar-token")
     public Map<String, String> generarToken() {
         Map<String, Object> extraClaims = new HashMap<>();
