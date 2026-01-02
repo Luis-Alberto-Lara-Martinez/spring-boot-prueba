@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Bienvenido a Homely</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white !important;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .highlight {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><span class="emoji">👋</span> ¡Hola ${name}!</h1>
+
+    <p>Bienvenido a <strong>Homely</strong>. Estamos muy felices de tenerte aquí.</p>
+
+    <div class="highlight">
+        <p><strong>🎉 ¡Tu cuenta ha sido creada exitosamente!</strong></p>
+        <p>Ahora puedes disfrutar de todas las funcionalidades de nuestra plataforma.</p>
+    </div>
+
+    <p>Para comenzar, te invitamos a explorar nuestra plataforma:</p>
+
+    <p style="text-align: center;">
+        <a href="https://homely.example" class="button">Explorar Homely</a>
+    </p>
+
+    <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en:</p>
+    <ul>
+        <li>Responder directamente a este email</li>
+        <li>Visitar nuestra <a href="https://homely.example/ayuda">sección de ayuda</a></li>
+        <li>Contactar a nuestro equipo de soporte</li>
+    </ul>
+
+    <div class="footer">
+        <p>Gracias por unirte a nosotros.</p>
+        <p>© ${year} Homely. Todos los derechos reservados.</p>
+    </div>
+</div>
+</body>
+</html>
