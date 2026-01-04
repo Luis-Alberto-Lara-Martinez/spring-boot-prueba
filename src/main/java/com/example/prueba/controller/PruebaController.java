@@ -1,9 +1,6 @@
 package com.example.prueba.controller;
 
-import com.example.prueba.services.CloudinaryService;
-import com.example.prueba.services.EmailService;
-import com.example.prueba.services.JwtService;
-import com.example.prueba.services.ResetTokenService;
+import com.example.prueba.services.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,12 +21,19 @@ public class PruebaController {
     private final ResetTokenService resetTokenService;
     private final JwtService jwtService;
     private final CloudinaryService cloudinaryService;
+    private final GroqService groqService;
 
-    public PruebaController(EmailService emailService, ResetTokenService resetTokenService, JwtService jwtService, CloudinaryService cloudinaryService) {
+    public PruebaController(
+            EmailService emailService,
+            ResetTokenService resetTokenService,
+            JwtService jwtService,
+            CloudinaryService cloudinaryService,
+            GroqService groqService) {
         this.emailService = emailService;
         this.resetTokenService = resetTokenService;
         this.jwtService = jwtService;
         this.cloudinaryService = cloudinaryService;
+        this.groqService = groqService;
     }
 
     @PostMapping("upload-file")
@@ -40,6 +44,15 @@ public class PruebaController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/public/ia")
+    public String iaPrueba() {
+        String texto = """
+                extrae los filtros para el acceso a mi bbdd en json de este texto: 
+                piso de 3 habitaciones 2 baños piscina trastero y garaje por menos de 400000
+                """;
+        return groqService.chat(texto);
     }
 
     // Endpoints en /pruebas/** - Acceso público (sin autenticación)
