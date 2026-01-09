@@ -94,13 +94,7 @@ public class PruebaController {
         return "Estos son datos privados accesibles solo con JWT de admin. Usuario: " + authentication.getName();
     }
 
-    // Endpoints antiguos en /api (acceso público según configuración)
-    @GetMapping("/api/api-key")
-    public String test() {
-        return emailService.mostrarApiKey();
-    }
-
-    @GetMapping("/api/send-welcome")
+    @GetMapping("/public/send-welcome")
     public String sendWelcomeEmail() {
         try {
             emailService.sendWelcomeEmail("luisalbertolaramartinez3c@gmail.com", "Luis Alberto");
@@ -114,7 +108,7 @@ public class PruebaController {
     public String sendResetPasswordEmail() {
         try {
             String resetLink = "https://homely.example.com/reset-password?token=abc123xyz";
-            emailService.sendResetPasswordEmail("luisalbertolaramartinez3c@gmail.com", "Luis Alberto", resetLink, "24 horas");
+            emailService.sendResetPasswordEmail("luisalbertolaramartinez3c@gmail.com", "Luis Alberto", resetLink, "30 minutos");
             return "Correo de restablecimiento de contraseña enviado correctamente";
         } catch (Exception e) {
             return "Error al enviar el correo de restablecimiento: " + e.getMessage();
