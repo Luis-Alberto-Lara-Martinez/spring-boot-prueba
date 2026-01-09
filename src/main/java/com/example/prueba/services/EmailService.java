@@ -47,7 +47,8 @@ public class EmailService {
 
         SendEmailRequest params = SendEmailRequest.builder()
                 .from(FROM_EMAIL)
-                .to(to).subject(subject)
+                .to(to)
+                .subject(subject)
                 .html(htmlTemplate)
                 .text(htmlToPlainText(htmlTemplate))
                 .build();
