@@ -45,9 +45,11 @@ public class PruebaController {
             GoogleIdToken.Payload payload = googleService.verifyToken(token);
             return ResponseEntity.ok(Map.of(
                     "respuesta", "Todo ok jose luis",
+                    "ID de Google", payload.getSubject(),
                     "email", payload.getEmail(),
                     "name", payload.get("name"),
-                    "picture", payload.get("picture")
+                    "picture", payload.get("picture"),
+                    "payload completo", payload
             ));
         } catch (GeneralSecurityException | IOException e) {
             return ResponseEntity.badRequest().body(Map.of(
