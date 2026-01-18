@@ -1,15 +1,18 @@
 package com.example.prueba.controller;
 
 import com.example.prueba.services.*;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,41 +24,23 @@ public class PruebaController {
     private final JwtService jwtService;
     private final CloudinaryService cloudinaryService;
     private final GroqService groqService;
-    private final GoogleService googleService;
 
     public PruebaController(
             EmailService emailService,
             ResetTokenService resetTokenService,
             JwtService jwtService,
             CloudinaryService cloudinaryService,
-            GroqService groqService,
-            GoogleService googleService) {
+            GroqService groqService) {
         this.emailService = emailService;
         this.resetTokenService = resetTokenService;
         this.jwtService = jwtService;
         this.cloudinaryService = cloudinaryService;
         this.groqService = groqService;
-        this.googleService = googleService;
     }
 
-    @PostMapping("/public/google")
-    public ResponseEntity<?> loginWithGoogle(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        try {
-            GoogleIdToken.Payload payload = googleService.verifyToken(token);
-            return ResponseEntity.ok(Map.of(
-                    "respuesta", "Todo ok jose luis",
-                    "ID de Google", payload.getSubject(),
-                    "email", payload.getEmail(),
-                    "name", payload.get("name"),
-                    "picture", payload.get("picture"),
-                    "payload completo", payload
-            ));
-        } catch (GeneralSecurityException | IOException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage()
-            ));
-        }
+    @GetMapping("/oauth2/google-microsoft")
+    public Map<String, Object> loginWithGoogle(@AuthenticationPrincipal Jwt token) {
+        return token.getClaims();
     }
 
 

@@ -25,7 +25,9 @@ import java.util.List;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final List<String> PUBLIC_PATHS = List.of("/public/**");
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/public/**",
+            "/oauth2/**");
     private final String secretKey;
     private final AntPathMatcher pathMatcher;
 
@@ -42,20 +44,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String uri = request.getRequestURI();
-
         if (isPublic(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
+            String authHeader = request.getHeader("Authorization");
             String token = authHeader.substring(7);
             Claims claims = Jwts.parser()
                     .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
