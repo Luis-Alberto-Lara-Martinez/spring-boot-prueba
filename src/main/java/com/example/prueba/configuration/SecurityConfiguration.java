@@ -2,6 +2,7 @@ package com.example.prueba.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,16 +23,9 @@ import java.util.List;
 class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public SecurityConfiguration(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            CustomAccessDeniedHandler customAccessDeniedHandler,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.customAccessDeniedHandler = customAccessDeniedHandler;
-        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Bean
@@ -57,27 +51,72 @@ class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    @Order(1)
+    public SecurityFilterChain publicChain(HttpSecurity http) {
+        http
+                .securityMatcher("/public/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> cors
+                        .configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(authz -> authz
+                        .anyRequest().permitAll())
+                .httpBasic(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauth2Chain(HttpSecurity http) {
         JwtIssuerAuthenticationManagerResolver jwtIssuerAuthenticationManagerResolver =
                 JwtIssuerAuthenticationManagerResolver.fromTrustedIssuers(
                         "https://accounts.google.com",
                         "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0");
         http
+                .securityMatcher("/oauth2/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors
+                        .configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/oauth2/**").authenticated()
-                        .requestMatchers("/api/**").authenticated()
-                        .requestMatchers("/admin/**").hasRole("ADMINISTRADOR")
-                        .anyRequest().denyAll())
-                .exceptionHandling(e -> e
-                        .accessDeniedHandler(customAccessDeniedHandler)
-                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth
                         .authenticationManagerResolver(jwtIssuerAuthenticationManagerResolver))
+                .httpBasic(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
+    public SecurityFilterChain adminChain(HttpSecurity http) {
+        http
+                .securityMatcher("/admin/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> cors
+                        .configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(authz -> authz
+                        .anyRequest().hasRole("ADMINISTRADOR"))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean
+    @Order(4)
+    public SecurityFilterChain fallbackChain(HttpSecurity http) {
+        http
+                .securityMatcher("/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> cors
+                        .configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(authz -> authz
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
